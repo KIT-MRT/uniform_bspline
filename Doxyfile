@@ -1,0 +1,5 @@
+EXTRACT_PRIVATE = YES
+EXTRA_PACKAGES = blkarray amssymb amsmath
+EXAMPLE_PATH = test
+PREDEFINED = DOXYGEN
+USE_MDFILE_AS_MAINPAGE = ./doc/README_doxygen.md

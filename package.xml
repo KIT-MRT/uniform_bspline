@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>uniform_bspline</name>
+  <version>1.1.0</version>
+  <description>A B-spline implementation using a uniform knot vector.</description>
+
+  <license>MRT</license>
+  <maintainer email="johannes.beck@kit.edu">Johannes Beck</maintainer>
+  <author email="johannes.beck@kit.edu">Johannes Beck</author>
+  <url type="repository">https://gitlab.mrt.uni-karlsruhe.de/MRT/production/uniform_bspline</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>mrt_cmake_modules</build_depend>
+  <test_depend>gtest</test_depend>
+
+  <depend>eigen</depend>
+  <depend>boost</depend>
+</package>

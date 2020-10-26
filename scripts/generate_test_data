@@ -1,0 +1,168 @@
+#!/usr/bin/env wolframscript
+
+
+If [Length[$ScriptCommandLine] != 2,
+    Print["Usage: generate_test_data <output file path>"];
+    Exit[1];
+];
+
+
+Get["exporter.m"];
+SeedRandom[1];
+
+
+rootDir = ExpandFileName[$ScriptCommandLine[[2]]];
+Print["Output directory: " <> rootDir]
+If[!DirectoryQ[rootDir], CreateDirectory[rootDir]];
+
+
+generateGrid[numPts_List,bounds_List]:=Module[{ranges,i},ranges={};
+    Do[AppendTo[ranges,bounds[[i]]],{i,1,Length[bounds]}];
+    Partition[Flatten[Array[{##}&,numPts,ranges]],Length[numPts]]
+]
+
+
+generateTestData[degree_Integer, numPoints_List, outputDims_Integer, derivatives_List, numTestPoints_List, lowerBound_List, upperBound_List] := Module[{points, file, data, func, testVals, inputDims, vars,derivParams, dfunc, rules, testValsScaled, i, testResult, bounds, scales,funcBspline}, 
+    Assert[Length[lowerBound] != Length[upperBound]];
+    inputDims = Length[numPoints];
+    points = RandomInteger[{-5, 5}, Flatten[{numPoints, outputDims}]]/RandomInteger[{1, 5}, Flatten[{numPoints, outputDims}]];
+
+    bounds = Transpose[{lowerBound,upperBound}];
+    scales = upperBound - lowerBound;
+
+    file = {ToString[degree] <> " " <> ToString[inputDims] <> " " <> ToString[outputDims]};
+    AppendTo[file, StringRiffle[derivatives, " "]];
+    AppendTo[file, StringRiffle[numPoints, " "]];
+    AppendTo[file, matToString[Flatten[points], " "]];
+    AppendTo[file,  StringRiffle[Flatten[bounds], " "]];
+
+    funcBspline = BSplineFunction[points, SplineDegree -> degree, SplineKnots -> "Unclamped"];
+    func[x__]:=Apply[funcBspline,({x}-lowerBound)/scales];
+    testVals = generateGrid[numTestPoints,bounds];
+    testResult = (Flatten[{#, Apply[func, #]}]) & /@ testVals;
+
+    vars = Table[ToExpression["a" <> ToString[i]], {i, 1, inputDims}];
+    derivParams = Transpose[{vars, derivatives}];
+    dfunc = Apply[D, Catenate[{{Apply[func, vars]}, derivParams}]];
+
+    testResult = (Flatten[{#, dfunc /. Table[vars[[i]] -> #[[i]], {i, 1, inputDims}]}]) & /@ testVals;
+  
+    data = (matToString[#, " "]) & /@ testResult;
+
+    AppendTo[file, Length[data]];
+    file = Flatten[{file, data}];
+    file
+]
+
+
+testDataParams = {
+    (*Without scale*) 
+    {5, {50}, 1, {0}, {60}, {0.0}, {1.0}},
+    {4, {50}, 2, {0}, {60}, {0.0}, {1.0}},
+    {3, {10, 12}, 3, {0, 0}, {17, 19}, {0.0, 0.0}, {1.0, 1.0}},
+    {2, {6, 5, 7},  2, {0, 0, 0}, {9, 11, 12}, {0.0, 0.0, 0.0}, {1.0, 1.0, 1.0}},
+
+    {5, {30}, 1, {2}, {60}, {0.0}, {1.0}},
+    {3, {10, 12}, 1, {2, 1}, {16, 20}, {0.0, 0.0}, {1.0, 1.0}},
+    {3, {10, 12}, 3, {1, 2}, {17, 19}, {0.0, 0.0}, {1.0, 1.0}},
+
+    (*With scale*) 
+    {5, {50}, 1, {0}, {60}, {1.0}, {11.0}},
+    {4, {50}, 2, {0}, {60}, {2.0}, {14.0}},
+    {3, {10, 12}, 3, {0, 0}, {17, 19}, {3.0, 4.0}, {15.0, 17.0}},
+    {2, {6, 5, 7},  2, {0, 0, 0}, {9, 11, 12}, {5.0,6.0, 7.0}, {18.0, 20.0, 32.0}},
+
+    {5, {30}, 1, {2}, {60}, {10.0}, {17.0}},
+    {3, {10, 12}, 1, {2, 1}, {16, 20}, {8.0, 9.0}, {30.0, 29.0}},
+    {3, {10, 12}, 3, {1, 2}, {17, 19}, {12.0, 13.0}, {40.0, 38.0}}
+};
+
+
+Print["Write test points:"]
+Do[file = generateTestData @@ testDataParams[[i]];
+    path = rootDir <> "/test_points_" <> ToString[i] <> ".txt";
+    Print[path];
+    Export[path, file, "Table"];, {i, 1, Length[testDataParams]}]
+Print["Done."]
+
+
+generateSmoothnessTestData[degree_Integer, numPoints_List, outputDims_Integer, derivative_Integer, lowerBound_List, upperBound_List] := Module[{inputDims, func, res, points, file, intFunc, ff, d1, d2, d3,bounds,funcBspline,scales},
+    Assert[Length[lowerBound] != Length[upperBound]];
+    inputDims = Length[numPoints];
+    points = RandomInteger[{-5, 5}, Flatten[{numPoints, outputDims}]]/RandomInteger[{1, 5}, Flatten[{numPoints, outputDims}]];
+
+    bounds = Transpose[{lowerBound,upperBound}];
+    scales = upperBound - lowerBound;
+
+    file = {ToString[degree] <> " " <> ToString[inputDims] <> " " <> ToString[outputDims] <> " " <> ToString[derivative]};
+    AppendTo[file, StringRiffle[numPoints, " "]];
+    AppendTo[file, matToString[Flatten[points], " "]];
+    AppendTo[file,  StringRiffle[Flatten[bounds], " "]];
+
+    funcBspline = BSplineFunction[points, SplineDegree -> degree, SplineKnots -> "Unclamped"];
+    func[x__]:=Apply[funcBspline,({x}-lowerBound)/scales];    
+
+    Off[NIntegrate::slwcon];
+
+    Switch[inputDims,
+        1,
+        ff[d1_] = D[func[d1], {{d1}, derivative}];
+        intFunc[d1_?NumericQ] := Flatten[ff[d1]].Flatten[ff[d1]];
+        res = NIntegrate[intFunc[z1], Catenate[{{z1}, bounds[[1]]}], MaxRecursion -> 100];,
+        2,
+        ff[d1_, d2_] =D[func[d1, d2], {{d1, d2}, derivative}];
+        intFunc[d1_?NumericQ, d2_?NumericQ] := 
+        Flatten[ff[d1, d2]].Flatten[ff[d1, d2]];
+        res = NIntegrate[intFunc[z1, z2], Catenate[{{z1}, bounds[[1]]}], Catenate[{{z2}, bounds[[2]]}], MaxRecursion -> 100];,
+        3,
+        ff[d1_, d2_, d3_]=D[func[d1, d2, d3], {{d1, d2, d3}, derivative}];
+        intFunc[d1_?NumericQ, d2_?NumericQ, d3_?NumericQ] := 
+        Flatten[ff[d1, d2, d3]].Flatten[ff[d1, d2, d3]];
+        res = NIntegrate[intFunc[z1, z2, z3],  Catenate[{{z1}, bounds[[1]]}], Catenate[{{z2}, bounds[[2]]}], Catenate[{{z3}, bounds[[3]]}], MaxRecursion -> 100];
+    ];
+
+    AppendTo[file, res];
+    file
+]
+
+
+testDataParams = {
+    (*Without scale*) 
+    {3, {4}, 1, 0, {0.0}, {1.0}},
+    {3, {4}, 1, 1, {0.0}, {1.0}},
+    {3, {4}, 2, 1, {0.0}, {1.0}},
+    {3, {8}, 1, 1, {0.0}, {1.0}},
+    {3, {8}, 1, 2, {0.0}, {1.0}},
+
+    {3, {4, 4}, 1, 1, {0.0, 0.0}, {1.0, 1.0}},
+    {3, {8, 8}, 1, 1, {0.0, 0.0}, {1.0, 1.0}},
+    {3, {5, 8}, 1, 1, {0.0, 0.0}, {1.0, 1.0}},
+    {3, {5, 8}, 1, 0, {0.0, 0.0}, {1.0, 1.0}},
+    {3, {5, 8}, 2, 1, {0.0, 0.0}, {1.0, 1.0}},
+    {3, {5, 8}, 2, 2, {0.0, 0.0}, {1.0, 1.0}},
+
+    {3, {5, 8, 6}, 2, 2, {0.0,0.0, 0.0}, {1.0, 1.0, 1.0}},
+
+    (*With scale*) 
+    {3, {4}, 1, 0, {1.0}, {7.0}},
+    {3, {4}, 1, 1, {2.0}, {6.0}},
+    {3, {4}, 2, 1, {3.0}, {5.0}},
+    {3, {8}, 1, 1, {4.0}, {100.0}},
+    {3, {8}, 1, 2, {5.0}, {17.0}},
+
+    {3, {4, 4}, 1, 1, {6.0, 12.0}, {12.0, 30.0}},
+    {3, {8, 8}, 1, 1, {7.0, 14.0}, {9.0, 20.0}},
+    {3, {5, 8}, 1, 1, {8.0, 16.0}, {70.0, 25.0}},
+    {3, {5, 8}, 1, 0, {9.0, 18.0}, {60.0, 27.0}},
+    {3, {5, 8}, 2, 1, {10.0, 20.0}, {50.0, 31.0}},
+    {3, {5, 8}, 2, 2, {11.0, 22.0}, {40.0, 50.0}},
+
+    {3, {5, 8, 6}, 2, 2, {1.0, 2.0, 3.0}, {9.0, 8.0, 7.0}}};
+
+
+Print["Write smoothness test points:"];
+Do[file = generateSmoothnessTestData @@ testDataParams[[i]];
+    path = rootDir <> "/test_points_smoothness_" <> ToString[i] <> ".txt";
+    Export[path, file, "Table"];
+    Print[path];, {i, 1, Length[testDataParams]}]
+Print["Done."];
