@@ -1,69 +1,107 @@
-set(MRT_PKG_VERSION 4.0.0)
-# Modify only if you know what you are doing!
-cmake_minimum_required(VERSION 3.5.1)
-project(uniform_bspline)
+cmake_minimum_required(VERSION 3.16)
+project(uniform_bspline VERSION 1.1.0 LANGUAGES CXX)
 
-###################
-## Find packages ##
-###################
-find_package(mrt_cmake_modules REQUIRED)
-include(UseMrtStdCompilerFlags)
-include(GatherDeps)
+# ---------------------------------------------------------------------------
+# Options
+# ---------------------------------------------------------------------------
+option(BUILD_PYTHON_BINDINGS  "Build Python bindings via pybind11" OFF)
+option(BUILD_TESTS            "Build C++ unit tests"               OFF)
+option(BUILD_DOCUMENTATION    "Build Doxygen HTML documentation"   OFF)
 
-# You can add a custom.cmake in order to add special handling for this package. E.g. you can do:
-# list(REMOVE_ITEM DEPENDEND_PACKAGES <package name 1> <package name 2> ...)
-# To remove libs which cannot be found automatically. You can also "find_package" other, custom dependencies there.
-# You can also set PROJECT_INSTALL_FILES to install files that are not installed by default.
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/custom.cmake")
-    include("${CMAKE_CURRENT_SOURCE_DIR}/custom.cmake")
+# ---------------------------------------------------------------------------
+# Dependencies
+# ---------------------------------------------------------------------------
+find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+find_package(Boost 1.40 REQUIRED)
+
+# ---------------------------------------------------------------------------
+# Library target (header-only interface)
+# ---------------------------------------------------------------------------
+add_library(uniform_bspline INTERFACE)
+add_library(uniform_bspline::uniform_bspline ALIAS uniform_bspline)
+
+# Both include paths are required:
+#  - include/              so consumers can do #include <uniform_bspline/...>
+#  - include/uniform_bspline/  so the headers can include each other with bare names
+target_include_directories(uniform_bspline
+    INTERFACE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/uniform_bspline>
+        $<INSTALL_INTERFACE:include>
+        $<INSTALL_INTERFACE:include/uniform_bspline>
+)
+
+target_link_libraries(uniform_bspline
+    INTERFACE
+        Eigen3::Eigen
+        Boost::boost
+)
+
+target_compile_features(uniform_bspline INTERFACE cxx_std_17)
+
+# ---------------------------------------------------------------------------
+# Python bindings
+# ---------------------------------------------------------------------------
+if(BUILD_PYTHON_BINDINGS)
+    add_subdirectory(bindings/python)
 endif()
 
-find_package(AutoDeps REQUIRED COMPONENTS ${DEPENDEND_PACKAGES})
-
-mrt_parse_package_xml()
-
-########################
-## Add python modules ##
-########################
-# This adds a python module if located under src/{PROJECT_NAME)
-mrt_python_module_setup()
-
-mrt_glob_files(PROJECT_PYTHON_SOURCE_FILES_SRC "python_api/*.cpp")
-if (PROJECT_PYTHON_SOURCE_FILES_SRC)
-    # Add a cpp-python api library. Make sure there are no name collisions with python modules in this project
-    mrt_add_python_api( ${PROJECT_NAME}
-        FILES ${PROJECT_PYTHON_SOURCE_FILES_SRC}
-        )
-endif()
-
-############################
-## Read source code files ##
-############################
-mrt_glob_files_recurse(PROJECT_HEADER_FILES_INC "include/*.h" "include/*.hpp" "include/*.cuh")
-mrt_glob_files(PROJECT_SOURCE_FILES_INC "src/*.h" "src/*.hpp" "src/*.cuh")
-mrt_glob_files(PROJECT_SOURCE_FILES_SRC "src/*.cpp" "src/*.cu")
-
-###########
-## Build ##
-###########
-# Declare a cpp library
-mrt_add_library(${PROJECT_NAME}
-    INCLUDES ${PROJECT_HEADER_FILES_INC} ${PROJECT_SOURCE_FILES_INC}
-    SOURCES ${PROJECT_SOURCE_FILES_SRC}
+# ---------------------------------------------------------------------------
+# Documentation
+# ---------------------------------------------------------------------------
+if(BUILD_DOCUMENTATION)
+    find_package(Doxygen REQUIRED)
+    add_custom_target(docs
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_SOURCE_DIR}/build/docs
+        COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMENT "Generating Doxygen HTML documentation"
+        VERBATIM
     )
-
-#############
-## Install ##
-#############
-# Install all targets, headers by default and scripts and other files if specified (folders or files).
-# This command also exports libraries and config files for dependent packages and this supersedes catkin_package.
-mrt_install(PROGRAMS scripts FILES res data ${PROJECT_INSTALL_FILES})
-
-#############
-## Testing ##
-#############
-# Add test targets for cpp and python tests
-if (CATKIN_ENABLE_TESTING)
-    mrt_add_tests(test)
-    mrt_add_nosetests(test)
 endif()
+
+# ---------------------------------------------------------------------------
+# Tests
+# ---------------------------------------------------------------------------
+if(BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests/cpp)
+endif()
+
+# ---------------------------------------------------------------------------
+# Install
+# ---------------------------------------------------------------------------
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
+install(TARGETS uniform_bspline
+    EXPORT uniform_bsplineTargets
+)
+
+install(DIRECTORY include/
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(EXPORT uniform_bsplineTargets
+    FILE uniform_bsplineTargets.cmake
+    NAMESPACE uniform_bspline::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/uniform_bspline
+)
+
+configure_package_config_file(
+    cmake/uniform_bsplineConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/uniform_bsplineConfig.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/uniform_bspline
+)
+
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/uniform_bsplineConfigVersion.cmake
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMajorVersion
+)
+
+install(FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/uniform_bsplineConfig.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/uniform_bsplineConfigVersion.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/uniform_bspline
+)

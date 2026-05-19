@@ -1,0 +1,20 @@
+# CMake build output
+build/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+*.so
+.pytest_cache/
+.venv/
+
+# Secrets
+.env
+*.env
+
+# Editor
+.vscode/
+*.swp
+*~

@@ -1,0 +1,9 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+find_dependency(Eigen3 3.3 NO_MODULE)
+find_dependency(Boost)
+
+include("${CMAKE_CURRENT_LIST_DIR}/uniform_bsplineTargets.cmake")
+
+check_required_components(uniform_bspline)

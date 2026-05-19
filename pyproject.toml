@@ -1,0 +1,28 @@
+[build-system]
+requires = ["scikit-build-core>=0.9", "pybind11>=2.11"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "uniform_bspline"
+version = "1.1.0"
+description = "A B-spline implementation using a uniform knot vector — Python bindings."
+license = { text = "BSL-1.0" }
+requires-python = ">=3.8"
+authors = [{name = "Johannes Beck", email = "johannes.beck@kit.edu"}]
+dependencies = ["numpy>=1.21"]
+
+[project.optional-dependencies]
+test = ["pytest>=7"]
+
+[project.urls]
+Homepage = "https://github.com/KIT-MRT/uniform_bspline"
+Documentation = "https://kit-mrt.github.io/uniform_bspline"
+Source = "https://github.com/KIT-MRT/uniform_bspline"
+Tracker = "https://github.com/KIT-MRT/uniform_bspline/issues"
+
+[tool.scikit-build]
+cmake.build-type = "Release"
+
+[tool.scikit-build.cmake.define]
+BUILD_PYTHON_BINDINGS = "ON"
+BUILD_TESTS = "OFF"

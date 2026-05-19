@@ -1,0 +1,17 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "uniform-bspline",
+  "version": "1.1.0",
+  "dependencies": [
+    "eigen3",
+    "boost-multi-array"
+  ],
+  "features": {
+    "python-bindings": {
+      "description": "Build Python bindings via pybind11",
+      "dependencies": [
+        "pybind11"
+      ]
+    }
+  }
+}
