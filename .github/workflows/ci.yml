@@ -84,8 +84,6 @@ jobs:
   docs:
     name: Doxygen → GitHub Pages
     runs-on: ubuntu-24.04
-    # Only deploy from the default branch
-    if: github.ref == 'refs/heads/main'
     permissions:
       contents: write
 
@@ -106,6 +104,7 @@ jobs:
           retention-days: 14
 
       - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
