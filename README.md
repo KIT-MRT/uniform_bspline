@@ -1,12 +1,9 @@
 # Uniform B-spline
 
 [![CI](https://github.com/KIT-MRT/uniform_bspline/actions/workflows/ci.yml/badge.svg)](https://github.com/KIT-MRT/uniform_bspline/actions/workflows/ci.yml)
-[![GitHub release](https://img.shields.io/github/v/release/KIT-MRT/uniform_bspline)](https://github.com/KIT-MRT/uniform_bspline/releases)
-[![PyPI](https://img.shields.io/pypi/v/uniform_bspline)](https://pypi.org/project/uniform_bspline/)
-[![codecov](https://codecov.io/gh/KIT-MRT/uniform_bspline/branch/main/graph/badge.svg)](https://codecov.io/gh/KIT-MRT/uniform_bspline)
-[![License: BSL-1.0](https://img.shields.io/badge/License-BSL_1.0-lightblue.svg)](https://www.boost.org/LICENSE_1_0.txt)
 [![C++17](https://img.shields.io/badge/C%2B%2B-17-blue.svg)](https://en.cppreference.com/w/cpp/17)
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/)
+[![License: BSL-1.0](https://img.shields.io/badge/License-BSL_1.0-lightblue.svg)](https://www.boost.org/LICENSE_1_0.txt)
 
 A header-only C++ library implementing uniform B-splines $` f: \mathbb{R}^n \rightarrow \mathbb{R}^m `$ with Python bindings.
 Uniform means the knot vector is equally distributed, which allows the basis functions to be precomputed and makes evaluation significantly more efficient.
