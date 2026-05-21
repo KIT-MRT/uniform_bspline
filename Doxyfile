@@ -18,14 +18,18 @@ OUTPUT_DIRECTORY       = build/docs
 # Input
 # ---------------------------------------------------------------------------
 INPUT                  = include/uniform_bspline \
-                         docs/mainpage.md
+                         docs/mainpage.md \
+                         tests/cpp \
+                         tests/python \
+                         bindings/python
 RECURSIVE              = YES
-FILE_PATTERNS          = *.hpp *.h *.md
+FILE_PATTERNS          = *.hpp *.h *.md *.cpp *.py
 EXTENSION_MAPPING      = hpp=C++
+SOURCE_BROWSER         = YES
 
 # Snippets are pulled from the C++ test sources.
 EXAMPLE_PATH           = tests/cpp tests/python bindings/python
-EXAMPLE_PATTERNS       = *.cpp
+EXAMPLE_PATTERNS       = *.cpp *.py *.hpp
 
 # Use the README as the Doxygen main page.
 USE_MDFILE_AS_MAINPAGE = docs/mainpage.md
@@ -43,6 +47,10 @@ HTML_OUTPUT            = html
 EXTRACT_ALL            = NO
 EXTRACT_PRIVATE        = YES
 EXTRACT_STATIC         = YES
+
+# Do not extract symbols from test/example source files (they appear in the
+# Files list for browsing but their internal classes need no API docs).
+EXCLUDE_PATTERNS       = */tests/cpp/test_utility.hpp
 
 # ---------------------------------------------------------------------------
 # Math rendering (MathJax — no LaTeX installation required)

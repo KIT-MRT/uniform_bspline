@@ -8,6 +8,9 @@ verbatim into the documentation via  \snippet examples.py Tag.
 import numpy as np
 import uniform_bspline as ubs
 
+# ---------------------------------------------------------------------------
+# See the Doxygen documentation for a more detailed explanation of the following example.
+# ---------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------
 # 1D -> 1D example

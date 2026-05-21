@@ -291,6 +291,7 @@ void bind_3d1d(py::module& m, const char* name) {
 // Python control points: numpy array of shape (N0, N1, N2, OutputDims).
 // Python input: numpy array of shape (3,).
 // ---------------------------------------------------------------------------
+//! [CustomBinding_Example]
 template <int Degree, int OutputDims>
 void bind_3dNd(py::module& m, const char* name) {
     using Input  = Eigen::Vector3d;
@@ -376,33 +377,6 @@ void bind_3dNd(py::module& m, const char* name) {
             return std::string(name) + "()";
         });
 }
-
-// ---------------------------------------------------------------------------
-// Module definition
-// ---------------------------------------------------------------------------
-
-//! [CustomBinding_Example]
-// To expose a type combination that is not pre-instantiated, copy the
-// relevant bind_* call into your own pybind11 module and register it under
-// any name you like.  The helper templates (bind_1d1d, bind_1dNd, bind_3d1d,
-// bind_3dNd) are defined above and cover the four supported input/output
-// dimension families.
-//
-// Example: add R¹→R² (e.g. a 2D trajectory) at degree 3
-//
-//   bind_1dNd<3, 2>(m, "UniformBSpline1d2d3");
-//
-// Example: add R²→R¹ (height map) at degree 4 — requires a custom bind
-// function for 2D input because bind_3d1d/bind_3dNd are hard-coded to R³:
-//
-//   using Grid2  = ubs::EigenAlignedMultiArray<double, 2>;
-//   using Input2 = Eigen::Vector2d;
-//   using S = ubs::UniformBSpline<double, 4, Input2, double, Grid2>;
-//   py::class_<S>(m, "UniformBSpline2d1d4")
-//       .def(py::init<>())
-//       .def("evaluate",
-//            [](const S& s, const Eigen::Vector2d& p) { return s.evaluate(p); },
-//            py::arg("pos"));
 //! [CustomBinding_Example]
 
 PYBIND11_MODULE(uniform_bspline, m) {

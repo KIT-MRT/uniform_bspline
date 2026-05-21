@@ -1,4 +1,4 @@
-find_package(GTest REQUIRED)
+find_package(GTest 1.10 REQUIRED)
 
 set(TEST_SOURCES
     control_points_container.cpp
@@ -21,13 +21,13 @@ target_link_libraries(uniform_bspline_tests
 #   #include "tests/cpp/test_utility.hpp"  (bare test-internal headers)
 target_include_directories(uniform_bspline_tests
     PRIVATE
-        ${CMAKE_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/../..
 )
 
 # Pass project source root so test_utility.hpp can resolve test_data paths.
 target_compile_definitions(uniform_bspline_tests
     PRIVATE
-        UBS_PROJECT_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
+        UBS_PROJECT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../.."
 )
 
 include(GoogleTest)

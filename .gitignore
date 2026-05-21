@@ -1,6 +1,9 @@
 # CMake build output
 build/
 
+# vcpkg
+vcpkg_installed/
+
 # Python
 __pycache__/
 *.py[cod]

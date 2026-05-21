@@ -104,26 +104,30 @@ For the full usage guide see the **[documentation](https://kit-mrt.github.io/uni
 
 | Dependency | Version | Notes |
 |---|---|---|
-| CMake | ≥ 3.16 | required |
-| Eigen3 | ≥ 3.3 | required |
-| Boost | ≥ 1.40 | required — multi_array |
-| pybind11 | ≥ 2.11 | optional — Python bindings only |
-| Python | ≥ 3.8 | optional — Python bindings only |
-| numpy | ≥ 1.21 | optional — Python bindings only |
+| CMake | >= 3.16 | required |
+| Eigen3 | >= 3.3 | required |
+| Boost | >= 1.40 | required — multi_array |
+| GTest | >= 1.10 | optional — C++ tests only |
+| pybind11 | >= 2.11 | optional — Python bindings only |
+| Python | >= 3.8 | optional — Python bindings only |
+| numpy | >= 1.21 | optional — Python bindings only |
 
 ### Option A — shell script (Ubuntu/Debian)
 
 ```bash
-./install_dependencies.sh            # core only
-./install_dependencies.sh --tests    # core + C++ test dependencies
-./install_dependencies.sh --python   # core + Python bindings
+./install_dependencies.sh                  # core only
+./install_dependencies.sh --tests          # core + C++ test dependencies
+./install_dependencies.sh --python         # core + Python bindings
+./install_dependencies.sh --tests --python # all of the above
 ```
 
 ### Option B — vcpkg (cross-platform: Linux / macOS / Windows)
 
 ```bash
-vcpkg install                              # reads vcpkg.json, installs Eigen3 + boost-multi-array
-vcpkg install --x-feature=python-bindings  # also installs pybind11
+vcpkg install                                                # core only
+vcpkg install --x-feature=tests                              # core + C++ test dependencies
+vcpkg install --x-feature=python-bindings                    # core + Python bindings
+vcpkg install --x-feature=tests --x-feature=python-bindings  # all of the above
 ```
 
 Then configure CMake with:
@@ -134,7 +138,7 @@ cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpk
 ### Option C — Dev Container (zero-setup)
 
 Open in VS Code → **Reopen in Container**.
-All dependencies (including Python bindings) are installed automatically via `.devcontainer/devcontainer.json`.
+All dependencies (core, GTest, and Python bindings) are installed automatically via `.devcontainer/devcontainer.json`.
 
 ## Installation
 
@@ -153,6 +157,14 @@ To also build the Doxygen HTML documentation:
 cmake -S . -B build -DBUILD_DOCUMENTATION=ON  # configure with docs enabled
 cmake --build build --target docs             # generate documentation
 ```
+
+CMake options:
+
+| Option | Default | Description |
+|---|---|---|
+| `BUILD_TESTS` | `OFF` | Build C++ GTest tests |
+| `BUILD_PYTHON_BINDINGS` | `OFF` | Build Python (pybind11) bindings |
+| `BUILD_DOCUMENTATION` | `OFF` | Build Doxygen documentation |
 
 Then in your own project:
 ```cmake
@@ -217,6 +229,14 @@ source .venv/bin/activate     # activate it
 pip install .[test]           # build and install the package + pytest
 pytest tests/python/          # run Python tests
 ```
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## License
+
+BSL-1.0 — see [LICENSE](LICENSE).
 
 ## Citation
 

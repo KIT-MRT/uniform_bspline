@@ -26,23 +26,14 @@ jobs:
             libeigen3-dev \
             libboost-dev
 
-      - name: Install lcov
-        run: sudo apt-get install -y lcov
-
       - name: Configure
-        run: cmake -S . -B build -DBUILD_TESTS=ON -DCMAKE_CXX_FLAGS="--coverage" -DCMAKE_EXE_LINKER_FLAGS="--coverage"
+        run: cmake -S . -B build -DBUILD_TESTS=ON
 
       - name: Build
         run: cmake --build build --parallel $(nproc)
 
       - name: Test
         run: ctest --test-dir build --output-on-failure
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          gcov: true
 
   # -------------------------------------------------------------------------
   # Python bindings build and test

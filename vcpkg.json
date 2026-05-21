@@ -7,6 +7,12 @@
     "boost-multi-array"
   ],
   "features": {
+    "tests": {
+      "description": "Build C++ GTest tests",
+      "dependencies": [
+        "gtest"
+      ]
+    },
     "python-bindings": {
       "description": "Build Python bindings via pybind11",
       "dependencies": [

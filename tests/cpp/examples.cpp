@@ -5,6 +5,8 @@
 #include <Eigen/Core>
 #include <gtest/gtest.h>
 
+// See the Doxygen documentation for a more detailed explanation of the following example.
+
 template <typename T>
 using EigenAlignedVec = std::vector<T, Eigen::aligned_allocator<T>>;
 
