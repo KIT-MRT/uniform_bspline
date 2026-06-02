@@ -4,14 +4,14 @@
 #include <Eigen/Core>
 
 #include "gtest/gtest.h"
-#include "test/test_utility.hpp"
+#include "tests/cpp/test_utility.hpp"
 
 namespace {
 template <typename T>
 using EigenAlignedVec = std::vector<T, Eigen::aligned_allocator<T>>;
 
 auto testDataFolder() {
-    return uniform_bspline::test::projectRootDir / "test" / "test_data";
+    return uniform_bspline::test::projectRootDir / "tests" / "cpp" / "test_data";
 }
 
 std::string getSplineTestFile(int idx) {

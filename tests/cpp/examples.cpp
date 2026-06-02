@@ -5,6 +5,8 @@
 #include <Eigen/Core>
 #include <gtest/gtest.h>
 
+// See the Doxygen documentation for a more detailed explanation of the following example.
+
 template <typename T>
 using EigenAlignedVec = std::vector<T, Eigen::aligned_allocator<T>>;
 
@@ -37,12 +39,22 @@ TEST(UniformBSplineExample, Spline1d1d) {
     double deriv1 = spline.derivative(0.0, 1);
     double deriv2 = spline.derivative(1.0, 2);
     //! [Spline1d1d_Derivative]
+
+    //! [Spline1d1d_Derivative_Overview]
+    double d1 = spline.derivative(0.0, 1);   // first derivative
+    double d2 = spline.derivative(0.0, 2);   // second derivative
+    //! [Spline1d1d_Derivative_Overview]
     EXPECT_DOUBLE_EQ(2.0, deriv1);
     EXPECT_DOUBLE_EQ(0.0, deriv2);
 
     //! [Spline1d1d_Smoothness]
     double smoothness = spline.smoothness<1>();
     //! [Spline1d1d_Smoothness]
+
+    //! [Spline1d1d_Smoothness_Overview]
+    double s1 = spline.smoothness<1>();   // integral of squared velocity
+    double s2 = spline.smoothness<2>();   // integral of squared acceleration
+    //! [Spline1d1d_Smoothness_Overview]
     EXPECT_DOUBLE_EQ(4.0, smoothness);
 
     //! [Spline1d1d_Bounds]
@@ -100,6 +112,13 @@ TEST(UniformBSplineExample, Spline2d1d) {
     //! [Spline2d1d_Derivative_11]
     double deriv11 = spline.derivative({0.0, 0.0}, {1, 1});
     //! [Spline2d1d_Derivative_11]
+
+    //! [Spline2d1d_Derivative_Overview]
+    // partial df/dx
+    double fx  = spline.derivative({0.0, 0.0}, {1, 0});
+    // mixed partial d²f/dx dy
+    double fxy = spline.derivative({0.0, 0.0}, {1, 1});
+    //! [Spline2d1d_Derivative_Overview]
     EXPECT_DOUBLE_EQ(0.0, deriv11);
 }
 

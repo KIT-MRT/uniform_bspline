@@ -1,0 +1,19 @@
+{
+  "name": "uniform_bspline",
+  "image": "mcr.microsoft.com/devcontainers/cpp:1-ubuntu-24.04",
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12"
+    }
+  },
+  "onCreateCommand": "sudo apt-get update && sudo apt-get install -y cmake libeigen3-dev libboost-dev libgtest-dev pybind11-dev python3-dev python3-pip python3-numpy",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools",
+        "ms-vscode.cmake-tools",
+        "ms-python.python"
+      ]
+    }
+  }
+}
