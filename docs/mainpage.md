@@ -270,6 +270,22 @@ A vector-valued function @f$f \colon \mathbb{R}^3 \rightarrow \mathbb{R}^2@f$ (e
 
 To see the full examples see \ref examples.py "examples.py".
 
+### Python test coverage
+
+The Python test suite (`tests/python/test_uniform_bspline.py`) is structured as follows:
+
+| Layer | Description |
+|---|---|
+| **Unit tests** | One class per spline family (`TestUniformBSpline1d1d`, `1d3d`, `3d1d`, `3d2d`) covering construction, bounds, evaluate, derivative, smoothness, extrapolation, and degree variants 1–5 |
+| **Example tests** | `test_example_*` functions execute every snippet in `examples.py` end-to-end |
+| **Real-data accuracy** | `TestRealDataEvaluate` and `TestRealDataSmoothness` validate `evaluate()`, `derivative()`, and `smoothness()` against Mathematica ground truth to &le; 1e-10 |
+
+Run with:
+
+```bash
+pytest tests/python/
+```
+
 ### Custom type combinations
 
 The four `bind_*` helper templates (`bind_1d1d`, `bind_1dNd`, `bind_3d1d`, `bind_3dNd`) cover every supported input/output dimension family.

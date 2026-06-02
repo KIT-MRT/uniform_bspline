@@ -99,6 +99,8 @@ proj.set_control_points(cp4)
 uv = proj.evaluate(np.array([0.5, 0.2, 0.8]))         # numpy array, shape (2,)
 ```
 
+The Python bindings are validated against the same Mathematica-generated ground-truth data as the C++ test suite: `evaluate()`, `derivative()`, and `smoothness()` are all verified to match reference values to ≤ 1e-10.
+
 For the full usage guide see the **[documentation](https://kit-mrt.github.io/uniform_bspline)**.
 
 ## Dependencies
@@ -230,6 +232,8 @@ source .venv/bin/activate     # activate it
 pip install .[test]           # build and install the package + pytest
 pytest tests/python/          # run Python tests
 ```
+
+The Python test suite (`tests/python/`) covers unit tests for all four spline families across degrees 1–5, `test_example_*` functions that execute every snippet in `examples.py` end-to-end, and real-data accuracy tests (`TestRealDataEvaluate`, `TestRealDataSmoothness`) validated against Mathematica ground-truth values.
 
 ## Contributing
 
